@@ -1,5 +1,9 @@
 const statusBox = document.getElementById("status");
 const sendBtn = document.getElementById("sendBtn");
+const API_BASE_URL = (window.CLICK_CONFIG && window.CLICK_CONFIG.apiBaseUrl)
+  ? window.CLICK_CONFIG.apiBaseUrl.replace(/\/$/, "")
+  : "";
+const CLICK_API_URL = API_BASE_URL ? `${API_BASE_URL}/api/click` : "";
 
 function setStatus(message, kind) {
   statusBox.textContent = message;
@@ -10,11 +14,16 @@ async function sendClickEmail() {
   const requester = document.getElementById("requester").value.trim();
   const note = document.getElementById("note").value.trim();
 
+  if (!CLICK_API_URL) {
+    setStatus("Click API is not configured. Set window.CLICK_CONFIG.apiBaseUrl in click-config.js.", "error");
+    return;
+  }
+
   sendBtn.disabled = true;
   setStatus("Sending email...", "");
 
   try {
-    const response = await fetch("/api/click", {
+    const response = await fetch(CLICK_API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
