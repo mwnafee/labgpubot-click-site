@@ -1,47 +1,56 @@
 const statusBox = document.getElementById("status");
 const sendBtn = document.getElementById("sendBtn");
-const API_BASE_URL = (window.CLICK_CONFIG && window.CLICK_CONFIG.apiBaseUrl)
-  ? window.CLICK_CONFIG.apiBaseUrl.replace(/\/$/, "")
-  : "";
-const CLICK_API_URL = API_BASE_URL ? `${API_BASE_URL}/api/click` : "";
+const EMAILJS_CONFIG = window.CLICK_CONFIG || {};
 
 function setStatus(message, kind) {
   statusBox.textContent = message;
   statusBox.className = kind || "";
 }
 
+function hasEmailjsConfig() {
+  return Boolean(
+    window.emailjs &&
+    EMAILJS_CONFIG.emailjsPublicKey &&
+    EMAILJS_CONFIG.emailjsServiceId &&
+    EMAILJS_CONFIG.emailjsTemplateId
+  );
+}
+
 async function sendClickEmail() {
-  const requester = document.getElementById("requester").value.trim();
+  const user = document.getElementById("requester").value.trim();
+  const server = document.getElementById("server").value.trim();
+  const issue = document.getElementById("issue").value.trim();
   const note = document.getElementById("note").value.trim();
 
-  if (!CLICK_API_URL) {
-    setStatus("Click API is not configured. Set window.CLICK_CONFIG.apiBaseUrl in click-config.js.", "error");
+  if (!hasEmailjsConfig()) {
+    setStatus("EmailJS is not configured. Check click-config.js and the EmailJS SDK script.", "error");
     return;
   }
 
   sendBtn.disabled = true;
-  setStatus("Sending email...", "");
+  setStatus("Sending ping...", "");
 
   try {
-    const response = await fetch(CLICK_API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        requester,
-        note
-      })
+    emailjs.init({
+      publicKey: EMAILJS_CONFIG.emailjsPublicKey
     });
 
-    const payload = await response.json();
-    if (!response.ok) {
-      throw new Error(payload.error || "Request failed.");
-    }
+    await emailjs.send(
+      EMAILJS_CONFIG.emailjsServiceId,
+      EMAILJS_CONFIG.emailjsTemplateId,
+      {
+        user: user || "unknown",
+        server: server || "not specified",
+        issue: issue || "not specified",
+        note: note || "(none)",
+        time: new Date().toLocaleString(),
+        page: window.location.href
+      }
+    );
 
-    setStatus(`Email sent to ${payload.recipient}.`, "success");
+    setStatus("Ping sent.", "success");
   } catch (error) {
-    setStatus(error.message || "Could not send email.", "error");
+    setStatus(error.text || error.message || "Could not send ping.", "error");
   } finally {
     sendBtn.disabled = false;
   }

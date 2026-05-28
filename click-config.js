@@ -1,3 +1,5 @@
 window.CLICK_CONFIG = {
-  apiBaseUrl: "http://128.113.12.31:8090"
+  emailjsPublicKey: "SXu04-JKtpZUf8NPb",
+  emailjsServiceId: "service_arxizjv",
+  emailjsTemplateId: "template_b6gdjff"
 };

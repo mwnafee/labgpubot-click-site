@@ -1,34 +1,21 @@
 # labgpubot-click-site
 
-Minimal frontend + backend click test.
+Minimal frontend click test.
 
-When the button is clicked, the backend sends an email through `labgpubot` to `nafeem@rpi.edu`.
+When the button is clicked, the page sends a GPU dashboard ping email through EmailJS.
 
-For GitHub Pages, configure the backend host in `click-config.js`:
+For GitHub Pages, configure EmailJS in `click-config.js`:
 
 ```js
 window.CLICK_CONFIG = {
-  apiBaseUrl: "http://deeprecon:8090"
+  emailjsPublicKey: "YOUR_PUBLIC_KEY",
+  emailjsServiceId: "YOUR_SERVICE_ID",
+  emailjsTemplateId: "YOUR_TEMPLATE_ID"
 };
 ```
 
 ## Run
 
-Set:
+Open `index.html` directly, or publish the folder through GitHub Pages.
 
-```bash
-export GMAIL_USER="labgpubot@gmail.com"
-export GMAIL_APP_PASSWORD="your-app-password"
-```
-
-Then start:
-
-```bash
-python3 server.py
-```
-
-Open:
-
-```text
-http://<host>:8090/
-```
+The template should include `{{user}}`, `{{server}}`, `{{issue}}`, `{{note}}`, `{{time}}`, and `{{page}}`.
